@@ -1,5 +1,6 @@
 const express = require('express');
 let books = require("./booksdb.js");
+const axios = require('axios');
 let isValid = require("./auth_users.js").isValid;
 let getUserByUsername = require("./auth_users.js").getUserByUsername;
 let users = require("./auth_users.js").users;
@@ -23,9 +24,20 @@ public_users.post("/register", (req, res) => {
   return res.status(400).json(req.body);
 });
 
+let getBooks = new Promise((resolve, reject) => {
+  resolve(books);
+});
+
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  return res.status(200).json(books);
+public_users.get('/', (req, res) => {
+  getBooks.then((books) => {
+    return res.status(200).json(books);
+  });
+});
+
+public_users.get('/test', (req, res) => {
+
+  
 });
 
 // Get book details based on ISBN
@@ -50,7 +62,7 @@ public_users.get('/author/:author',function (req, res) {
   if(results.length) {
     return res.status(200).json(results);
   }
-    return res.status(404).json({message: "Item no found"})
+  return res.status(404).json({message: "Item no found"})
 });
 
 // Get all books based on title
