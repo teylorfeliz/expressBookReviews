@@ -1,6 +1,5 @@
 const express = require('express');
 let books = require("./booksdb.js");
-const axios = require('axios');
 let isValid = require("./auth_users.js").isValid;
 let getUserByUsername = require("./auth_users.js").getUserByUsername;
 let users = require("./auth_users.js").users;
@@ -35,19 +34,28 @@ public_users.get('/', (req, res) => {
   });
 });
 
-public_users.get('/test', (req, res) => {
 
-  
-});
+
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
+
   const isbn = req.params.isbn;
-  const book = books[isbn];
-  if(book) {
-    return res.status(200).json(book);
-  }
-    return res.status(404).json({message: "Item no found"})
+
+  let getBook = new Promise((resolve, reject) => {
+    if(books[isbn]) {
+      resolve(books[isbn]);
+    } else {
+      reject(isbn);
+    }
+  });
+
+  getBook.then((book) => {
+      return res.status(200).json(book);
+  }).catch((err) => {
+    return res.status(404).json({message: "Item no found"});
+  });
+    
  });
   
 // Get book details based on author
