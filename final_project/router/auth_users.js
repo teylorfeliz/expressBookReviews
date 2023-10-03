@@ -6,11 +6,24 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username)=>{ //returns boolean
-//write code to check is the username is valid
+  for(let i = 0; i < users.length; i++) {
+    if(users[i].username === username) {
+      return false;
+    }
+  }
+  return true;
+}
+
+const getUserByUsername = (username) =>{
+  for(let i = 0; i < users.length; i++) {
+    if(users[i].username === username) return users[i];
+  }
+  return;
 }
 
 const authenticatedUser = (username,password)=>{ //returns boolean
 //write code to check if username and password match the one we have in records.
+    return getUserByUsername(username).password === password;
 }
 
 //only registered users can login
@@ -28,3 +41,4 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 module.exports.authenticated = regd_users;
 module.exports.isValid = isValid;
 module.exports.users = users;
+module.exports.getUserByUsername = getUserByUsername;
