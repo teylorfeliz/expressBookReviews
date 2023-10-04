@@ -2,9 +2,11 @@ const express = require('express');
 let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
+const getBooks = require('./utils.js').getBooks;
 const getBooksByAuthor = require('./utils.js').getBooksByAuthor;
 const getBooksByTitle = require('./utils.js').getBooksByTitle;
 const getUserByUsername = require('./utils.js').getUserByUsername;
+const getBookByISBN = require('./utils.js').getBookByISBN;
 const public_users = express.Router();
 
 
@@ -22,14 +24,10 @@ public_users.post("/register", (req, res) => {
       return res.status(201).json({ message: "user was created!" })
     }
   }
-
   return res.status(400).json(req.body);
 });
 
-let getBooks = new Promise((resolve, reject) => {
-  resolve(books);
-});
-
+//Get all books
 public_users.get('/', (req, res) => {
   getBooks.then((books) => {
     return res.status(200).json(books);
@@ -39,23 +37,11 @@ public_users.get('/', (req, res) => {
 
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn', function (req, res) {
-
-  const isbn = req.params.isbn;
-
-  let getBook = new Promise((resolve, reject) => {
-    if (books[isbn]) {
-      resolve(books[isbn]);
-    } else {
-      reject(isbn);
-    }
+  getBookByISBN(req.params.isbn).then(results => {
+    return res.status(200).json(results);
+  }).catch(err => {
+    return res.status(404).json({ message: "Item no found" })
   });
-
-  getBook.then((book) => {
-    return res.status(200).json(book);
-  }).catch((err) => {
-    return res.status(404).json({ message: "Item no found" });
-  });
-
 });
 
 //Get books by author
@@ -63,8 +49,8 @@ public_users.get('/author/:author', function (req, res) {
   getBooksByAuthor(req.params.author).then(results => {
     return res.status(200).json(results);
   }).catch(err => {
-    return res.status(404).json({ message: "Item no found" })
-  })
+    return res.status(404).json({ message: "Item no found" });
+  });
 });
 
 // Get all books based on title

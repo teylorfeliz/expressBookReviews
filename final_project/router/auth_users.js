@@ -7,7 +7,7 @@ const regd_users = express.Router();
 
 let users = [
   {username: "user", password : "pass"}
-];
+]; //used for testing
 
 
 //only registered users can login
