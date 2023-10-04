@@ -27,14 +27,11 @@ let getBooks = new Promise((resolve, reject) => {
   resolve(books);
 });
 
-// Get the book list available in the shop
 public_users.get('/', (req, res) => {
   getBooks.then((books) => {
     return res.status(200).json(books);
   });
 });
-
-
 
 
 // Get book details based on ISBN
@@ -57,8 +54,26 @@ public_users.get('/isbn/:isbn',function (req, res) {
   });
     
  });
+
+ function getBooksByAuthor(author) {
+  return new Promise((resolve, reject) => {
+  let results = [];
+  for(const id in books) {
+    if(books[id].author === author) {
+      results.push(books[id]);
+    }
+  }
+  if(results.length) {
+    resolve(results);
+  } else {
+    reject('No books found');
+  }
+
+  });
+ }
   
 // Get book details based on author
+/*
 public_users.get('/author/:author',function (req, res) {
   const author = req.params.author;
   let results = [];
@@ -71,6 +86,15 @@ public_users.get('/author/:author',function (req, res) {
     return res.status(200).json(results);
   }
   return res.status(404).json({message: "Item no found"})
+});
+*/
+
+public_users.get('/author/:author',function (req, res) {
+  getBooksByAuthor(req.params.author).then( results => {
+    return res.status(200).json(results);
+  }).catch( err => {
+    return res.status(404).json({message: "Item no found"})
+  })
 });
 
 // Get all books based on title
